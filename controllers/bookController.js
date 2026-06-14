@@ -4,6 +4,8 @@ let books = [
   { id: 3, title: "1984", author: "George Orwell" },
 ];
 
+const responseHandler = require("../lib/responseHandler");
+
 const getBooks = (req, res) => {
   res.json(books);
 };
@@ -14,7 +16,7 @@ const getBookById = (req, res) => {
   if (book) {
     res.json(book);
   } else {
-    res.status(404).json({ message: "Book not found" });
+    responseHandler.notFoundResponse(res, "Book not found");
   }
 };
 
@@ -28,7 +30,13 @@ const addBook = (req, res) => {
     author,
   };
   books.push(newBook);
-  res.json(newBook);
+
+  const response ={
+    success: true,
+    message: "Book added successfully",
+    data: newBook
+  }
+  res.status(201).json(response);
 };
 
 const updateBook = (req, res) => {
@@ -37,16 +45,16 @@ const updateBook = (req, res) => {
   const bookIndex = books.findIndex((book) => book.id === bookId);
   if (bookIndex !== -1) {
     books[bookIndex] = { id: bookId, title, author };
-    res.json(books[bookIndex]);
+    responseHandler.successWithDataResponse(res, books[bookIndex], "Book updated successfully");
   } else {
-    res.status(404).json({ message: "Book not found" });
+    responseHandler.notFoundResponse(res, "Book not found");
   }
 };
 
 const deleteBook = (req, res) => {
   const bookId = parseInt(req.params.id);
   books = books.filter((book) => book.id !== bookId);
-  res.json({ message: `Book with id ${bookId} deleted` });
+  responseHandler.successWithoutDataResponse(res, `Book with id ${bookId} deleted`);
 };
 
 module.exports = {
